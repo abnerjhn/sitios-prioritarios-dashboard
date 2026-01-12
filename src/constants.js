@@ -1,0 +1,22 @@
+export const FORMATION_COLORS = {
+    'Bosque caducifolio': '#4ade80',
+    'Bosque esclerofilo': '#22c55e',
+    'Bosque espinoso': '#16a34a',
+    'Bosque laurifolio': '#15803d',
+    'Bosque resinoso': '#166534',
+    'Bosque siempreverde': '#14532d',
+    'Desierto absoluto': '#fef3c7',
+    'Dunas de aerófitos': '#fde047',
+    'Estepas y pastizales': '#fbbf24',
+    'Herbazal de altitud': '#f59e0b',
+    'Herbazal efímero': '#d97706',
+    'Matorral bajo de altitud': '#b45309',
+    'Matorral bajo desértico': '#d6d3d1',
+    'Matorral caducifolio': '#a8a29e',
+    'Matorral desértico': '#78716c',
+    'Matorral esclerofilo': '#57534e',
+    'Matorral espinoso': '#44403c',
+    'Matorral siempreverde': '#292524',
+    'Sin vegetación': '#e2e8f0',
+    'Turberas': '#06b6d4'
+};
