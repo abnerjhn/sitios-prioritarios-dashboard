@@ -240,10 +240,30 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
 
                     if (apCode && apCode !== 'NO_MATCH') {
                         // Use querySourceFeatures to find the feature by its ID property in the source
-                        const apFeatures = map.current.querySourceFeatures('areas_protegidas', {
+                        // Strategy: Try strict code, then numeric, then rendered fallback
+                        let apFeatures = [];
+
+                        // 1. Source Query (Exact)
+                        apFeatures = map.current.querySourceFeatures('areas_protegidas', {
                             sourceLayer: 'Areas_Protegidas',
                             filter: ['==', 'Codrnap', apCode]
                         });
+
+                        // 2. Source Query (Numeric Attempt, e.g. WDPA-155 -> 155)
+                        if (apFeatures.length === 0) {
+                            const numeric = parseInt(String(apCode).replace(/\D/g, ''), 10);
+                            if (!isNaN(numeric)) {
+                                apFeatures = map.current.querySourceFeatures('areas_protegidas', {
+                                    sourceLayer: 'Areas_Protegidas',
+                                    filter: ['any', ['==', 'Codrnap', numeric], ['==', 'WDPA_PID', numeric], ['==', 'id', numeric]]
+                                });
+                            }
+                        }
+
+                        // 3. Rendered Fallback (if visible)
+                        if (apFeatures.length === 0) {
+                            apFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['areas_protegidas-fill'] });
+                        }
 
                         if (apFeatures.length > 0) {
                             const match = apFeatures[0];
@@ -258,11 +278,18 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     let spName = spCode;
 
                     if (spCode && spCode !== 'NO_MATCH') {
-                        // We assume SP layer uses 'Name' as identifier as per filter logic
-                        const spFeatures = map.current.querySourceFeatures('sitios_prioritarios', {
+                        let spFeatures = [];
+
+                        // 1. Source Query
+                        spFeatures = map.current.querySourceFeatures('sitios_prioritarios', {
                             sourceLayer: 'sitios_prior_integrados',
                             filter: ['==', 'Name', spCode]
                         });
+
+                        // 2. Rendered Fallback
+                        if (spFeatures.length === 0) {
+                            spFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['sitios_prioritarios-fill'] });
+                        }
 
                         if (spFeatures.length > 0) {
                             const match = spFeatures[0];
