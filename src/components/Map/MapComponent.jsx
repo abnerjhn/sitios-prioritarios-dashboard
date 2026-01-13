@@ -239,12 +239,15 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     let apName = apCode;
 
                     if (apCode && apCode !== 'NO_MATCH') {
-                        // Attempt to query rendered features specifically from AP layer at this point
-                        const apFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['areas_protegidas-fill'] });
+                        // Use querySourceFeatures to find the feature by its ID property in the source
+                        const apFeatures = map.current.querySourceFeatures('areas_protegidas', {
+                            sourceLayer: 'Areas_Protegidas',
+                            filter: ['==', 'Codrnap', apCode]
+                        });
+
                         if (apFeatures.length > 0) {
-                            const match = apFeatures[0]; // Assuming top one is correct or they are same
-                            // Try common name fields
-                            apName = match.properties.NOMBRE || match.properties.Name || match.properties.name || match.properties.Nombre || apCode;
+                            const match = apFeatures[0];
+                            apName = match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || apCode;
                         }
                     }
                     props["Área Protegida"] = apName;
@@ -255,10 +258,15 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     let spName = spCode;
 
                     if (spCode && spCode !== 'NO_MATCH') {
-                        const spFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['sitios_prioritarios-fill'] });
+                        // We assume SP layer uses 'Name' as identifier as per filter logic
+                        const spFeatures = map.current.querySourceFeatures('sitios_prioritarios', {
+                            sourceLayer: 'sitios_prior_integrados',
+                            filter: ['==', 'Name', spCode]
+                        });
+
                         if (spFeatures.length > 0) {
                             const match = spFeatures[0];
-                            spName = match.properties.NOMBRE || match.properties.Name || match.properties.name || match.properties.Nombre || spCode;
+                            spName = match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || spCode;
                         }
                     }
                     props["Sitio Prioritario"] = spName;
@@ -287,8 +295,17 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                 });
 
                 sortedKeys.forEach((key) => {
-                    const value = props[key];
+                    let value = props[key];
                     if (value === undefined || value === null) return;
+
+                    // Format Numbers
+                    if (key === 'Has' || key === 'has' || typeof value === 'number') {
+                        const num = parseFloat(value);
+                        if (!isNaN(num) && isFinite(num)) {
+                            value = new Intl.NumberFormat('es-CL').format(num);
+                        }
+                    }
+
                     propertiesHtml += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 2px 4px; font-weight: bold; color: #555;">${key}</td>
