@@ -28,7 +28,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
     const [relations, setRelations] = useState({});
     const [bounds, setBounds] = useState({});
 
-    const [formationsMap, setFormationsMap] = useState({});
+    const formationsRef = useRef({});
 
     // Fetch Data
     useEffect(() => {
@@ -45,7 +45,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
             formationsData.forEach(f => {
                 fMap[f.codigo] = `${f.formacion} (${f.piso})`;
             });
-            setFormationsMap(fMap);
+            formationsRef.current = fMap;
         }).catch(err => console.error("Failed to load map data:", err));
     }, []);
 
@@ -229,7 +229,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     // 1. Rename and Resolve Ecosystem
                     const ecoCode = props.CODIGO;
                     delete props.CODIGO;
-                    const ecoName = formationsMap[ecoCode] || ecoCode;
+                    const ecoName = formationsRef.current[ecoCode] || ecoCode;
                     props["Ecosistema"] = ecoName;
 
                     // 2. Rename and Resolve AP
