@@ -40,10 +40,10 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
             setRelations(relData);
             setBounds(boundsData);
 
-            // Create a lookup map for formations: { "CODIGO": "Nombre Formacion" }
+            // Create a lookup map for formations: { "CODIGO": "Nombre Formacion - Piso" }
             const fMap = {};
             formationsData.forEach(f => {
-                fMap[f.codigo] = f.formacion;
+                fMap[f.codigo] = `${f.formacion} (${f.piso})`;
             });
             setFormationsMap(fMap);
         }).catch(err => console.error("Failed to load map data:", err));
@@ -247,7 +247,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
 
                         if (apFeatures.length > 0) {
                             const match = apFeatures[0];
-                            apName = match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || apCode;
+                            apName = match.properties.NombreOrig || match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || apCode;
                         }
                     }
                     props["Área Protegida"] = apName;
@@ -266,7 +266,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
 
                         if (spFeatures.length > 0) {
                             const match = spFeatures[0];
-                            spName = match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || spCode;
+                            spName = match.properties.Nombre_SP || match.properties.NOMBRE || match.properties.Nombre || match.properties.Name || match.properties.name || spCode;
                         }
                     }
                     props["Sitio Prioritario"] = spName;
