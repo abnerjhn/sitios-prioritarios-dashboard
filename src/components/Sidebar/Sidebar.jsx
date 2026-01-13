@@ -193,7 +193,6 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
                             />
                             <div className="flex-1">
                                 <span className="text-sm font-medium text-slate-200 block">Sitios Prioritarios</span>
-                                <span className="text-[10px] text-slate-500">Aporte Propuesto</span>
                             </div>
                             <div className="w-2 h-2 rounded-full bg-purple-500"></div>
                         </label>
@@ -207,7 +206,6 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
                             />
                             <div className="flex-1">
                                 <span className="text-sm font-medium text-slate-200 block">Ecosistemas (Formaciones)</span>
-                                <span className="text-[10px] text-slate-500">Coloreado por Tipo</span>
                             </div>
                             <div className="w-2 h-2 rounded-full bg-slate-400"></div>
                         </label>
@@ -221,7 +219,6 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
                             />
                             <div className="flex-1">
                                 <span className="text-sm font-medium text-slate-200 block">Ecosistemas (Cruce)</span>
-                                <span className="text-[10px] text-slate-500">Border Cyan</span>
                             </div>
                             <div className="w-2 h-2 rounded-full bg-cyan-500 border border-slate-400"></div>
                         </label>
