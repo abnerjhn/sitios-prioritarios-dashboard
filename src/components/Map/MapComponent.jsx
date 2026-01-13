@@ -28,14 +28,24 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
     const [relations, setRelations] = useState({});
     const [bounds, setBounds] = useState({});
 
+    const [formationsMap, setFormationsMap] = useState({});
+
     // Fetch Data
     useEffect(() => {
         Promise.all([
             fetch('/data/relations.json').then(res => res.json()),
-            fetch('/data/bounds.json').then(res => res.json())
-        ]).then(([relData, boundsData]) => {
+            fetch('/data/bounds.json').then(res => res.json()),
+            fetch('/data/formations.json').then(res => res.json())
+        ]).then(([relData, boundsData, formationsData]) => {
             setRelations(relData);
             setBounds(boundsData);
+
+            // Create a lookup map for formations: { "CODIGO": "Nombre Formacion" }
+            const fMap = {};
+            formationsData.forEach(f => {
+                fMap[f.codigo] = f.formacion;
+            });
+            setFormationsMap(fMap);
         }).catch(err => console.error("Failed to load map data:", err));
     }, []);
 
@@ -209,10 +219,76 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     onEcosystemSelect(ecoId);
                 }
 
+                let props = { ...feature.properties };
+                let title = "Detalle";
+
+                // --- CUSTOM FIELD MAPPING FOR ECOSISTEMAS (CRUCE) ---
+                if (feature.layer.id.includes('ecosistemas-integrados')) {
+                    title = "Ecosistema (Cruce)";
+
+                    // 1. Rename and Resolve Ecosystem
+                    const ecoCode = props.CODIGO;
+                    delete props.CODIGO;
+                    const ecoName = formationsMap[ecoCode] || ecoCode;
+                    props["Ecosistema"] = ecoName;
+
+                    // 2. Rename and Resolve AP
+                    // Try to find the overlapping AP feature to get its name
+                    const apCode = props.Codrnap;
+                    delete props.Codrnap;
+                    let apName = apCode;
+
+                    if (apCode && apCode !== 'NO_MATCH') {
+                        // Attempt to query rendered features specifically from AP layer at this point
+                        const apFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['areas_protegidas-fill'] });
+                        if (apFeatures.length > 0) {
+                            const match = apFeatures[0]; // Assuming top one is correct or they are same
+                            // Try common name fields
+                            apName = match.properties.NOMBRE || match.properties.Name || match.properties.name || match.properties.Nombre || apCode;
+                        }
+                    }
+                    props["Área Protegida"] = apName;
+
+                    // 3. Rename and Resolve SP
+                    const spCode = props.Name; // In this layer 'Name' is the ID (e.g., SP1-004)
+                    delete props.Name;
+                    let spName = spCode;
+
+                    if (spCode && spCode !== 'NO_MATCH') {
+                        const spFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['sitios_prioritarios-fill'] });
+                        if (spFeatures.length > 0) {
+                            const match = spFeatures[0];
+                            spName = match.properties.NOMBRE || match.properties.Name || match.properties.name || match.properties.Nombre || spCode;
+                        }
+                    }
+                    props["Sitio Prioritario"] = spName;
+
+                } else if (feature.layer.id.includes('ecosistemas-formaciones')) {
+                    title = "Ecosistema (Formación)";
+                } else if (feature.layer.id.includes('areas_protegidas')) {
+                    title = "Área Protegida";
+                } else if (feature.layer.id.includes('sitios_prioritarios')) {
+                    title = "Sitio Prioritario";
+                }
+
                 // Build Table
                 let propertiesHtml = '<div style="max-height: 200px; overflow-y: auto; font-size: 11px;">';
                 propertiesHtml += '<table style="width: 100%; border-collapse: collapse; color: #333;">';
-                Object.entries(feature.properties).forEach(([key, value]) => {
+
+                // Sort keys so our important ones are top (optional, but nice)
+                const priorityKeys = ["Ecosistema", "Área Protegida", "Sitio Prioritario"];
+                const sortedKeys = Object.keys(props).sort((a, b) => {
+                    const idxA = priorityKeys.indexOf(a);
+                    const idxB = priorityKeys.indexOf(b);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return a.localeCompare(b);
+                });
+
+                sortedKeys.forEach((key) => {
+                    const value = props[key];
+                    if (value === undefined || value === null) return;
                     propertiesHtml += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 2px 4px; font-weight: bold; color: #555;">${key}</td>
@@ -221,12 +297,6 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                    `;
                 });
                 propertiesHtml += '</table></div>';
-
-                let title = "Detalle";
-                if (feature.layer.id.includes('ecosistemas-integrados')) title = "Ecosistema (Cruce)";
-                else if (feature.layer.id.includes('ecosistemas-formaciones')) title = "Ecosistema (Formación)";
-                else if (feature.layer.id.includes('areas_protegidas')) title = "Área Protegida";
-                else if (feature.layer.id.includes('sitios_prioritarios')) title = "Sitio Prioritario";
 
                 new maplibregl.Popup({ maxWidth: '300px' })
                     .setLngLat(e.lngLat)
