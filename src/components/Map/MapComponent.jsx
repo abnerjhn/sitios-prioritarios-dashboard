@@ -353,10 +353,16 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     }
                 }
 
+                // Render clickable link for URL_SIMBIO
+                let displayValue = value;
+                if (key === 'URL_SIMBIO' || (typeof value === 'string' && value.startsWith('http'))) {
+                    displayValue = `<a href="${value}" target="_blank" style="color: #2563eb; text-decoration: underline;">Ver Ficha</a>`;
+                }
+
                 propertiesHtml += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 2px 4px; font-weight: bold; color: #555;">${key}</td>
-                        <td style="padding: 2px 4px;">${value}</td>
+                        <td style="padding: 2px 4px;">${displayValue}</td>
                     </tr>
                    `;
             });
