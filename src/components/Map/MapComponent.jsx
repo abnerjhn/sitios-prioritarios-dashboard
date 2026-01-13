@@ -225,6 +225,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                 // --- CUSTOM FIELD MAPPING FOR ECOSISTEMAS (CRUCE) ---
                 if (feature.layer.id.includes('ecosistemas-integrados')) {
                     title = "Ecosistema (Cruce)";
+                    console.log('Click Properties:', props);
 
                     // 1. Rename and Resolve Ecosystem
                     const ecoCode = props.CODIGO;
@@ -265,6 +266,8 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                         apFeatures = queryAP('Areas_Protegidas');
                         if (apFeatures.length === 0) apFeatures = queryAP('areas_protegidas');
 
+                        console.log('AP Lookup:', { apCode, found: apFeatures.length, features: apFeatures });
+
                         // 3. Rendered Fallback (if visible)
                         if (apFeatures.length === 0) {
                             apFeatures = map.current.queryRenderedFeatures(e.point, { layers: ['areas_protegidas-fill'] });
@@ -300,6 +303,8 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                         spFeatures = querySP('sitios_prior_integrados');
                         if (spFeatures.length === 0) spFeatures = querySP('Sitios_Prioritarios');
                         if (spFeatures.length === 0) spFeatures = querySP('sitios_prioritarios');
+
+                        console.log('SP Lookup:', { spCode, found: spFeatures.length, features: spFeatures });
 
                         // 2. Rendered Fallback
                         if (spFeatures.length === 0) {
