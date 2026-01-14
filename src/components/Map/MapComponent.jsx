@@ -247,6 +247,7 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                         // Use querySourceFeatures to find the feature by its ID property in the source
                         // Strategy: Try strict code, then numeric, then rendered fallback
                         // Helper to query with multiple source layers
+                        let apFeatures = [];
                         const queryAP = (sourceLayer) => {
                             // 1. Exact string match
                             let res = map.current.querySourceFeatures('areas_protegidas', {
