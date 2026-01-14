@@ -360,8 +360,14 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
 
                 // Render clickable link for URL_SIMBIO
                 let displayValue = value;
+                // Check for URL key specifically OR http prefix
                 if (key === 'URL_SIMBIO' || (typeof value === 'string' && value.startsWith('http'))) {
-                    displayValue = `<a href="${value}" target="_blank" style="color: #2563eb; text-decoration: underline;">Ver Ficha</a>`;
+                    let href = value;
+                    // Ensure protocol if it's the specific key but missing http
+                    if (key === 'URL_SIMBIO' && !value.startsWith('http')) {
+                        href = `https://${value}`;
+                    }
+                    displayValue = `<a href="${href}" target="_blank" style="color: #2563eb; text-decoration: underline;">Ver Ficha</a>`;
                 }
 
                 propertiesHtml += `
