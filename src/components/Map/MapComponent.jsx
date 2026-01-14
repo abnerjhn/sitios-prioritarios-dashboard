@@ -235,8 +235,12 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
 
                     // 2. Rename and Resolve AP
                     // Try to find the overlapping AP feature to get its name
-                    const apCode = props.Codrnap;
+                    // Try to find the overlapping AP feature to get its name
+                    // Robustly read property (handle potential case differences)
+                    const apCode = props.Codrnap || props.codrnap || props.CODRNAP;
                     delete props.Codrnap;
+                    if (props.codrnap) delete props.codrnap;
+                    if (props.CODRNAP) delete props.CODRNAP;
                     let apName = apCode;
 
                     if (apCode && apCode !== 'NO_MATCH') {
@@ -284,8 +288,10 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     props["Área Protegida"] = apName;
 
                     // 3. Rename and Resolve SP
-                    const spCode = props.Name; // In this layer 'Name' is the ID (e.g., SP1-004)
+                    const spCode = props.Name || props.NAME || props.name; // In this layer 'Name' is the ID
                     delete props.Name;
+                    if (props.NAME) delete props.NAME;
+                    if (props.name) delete props.name;
                     let spName = spCode;
 
                     if (spCode && spCode !== 'NO_MATCH') {
