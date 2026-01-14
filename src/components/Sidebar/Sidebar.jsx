@@ -406,7 +406,7 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
             </div>
 
             <div className="p-4 border-t border-slate-800 text-center">
-                <span className="text-xs text-slate-600">v1.0.0 | Antigravity Build</span>
+                <span className="text-xs text-green-400 font-bold">v1.0.6 (Debug Active)</span>
             </div>
 
             {/* Formations Modal */}
