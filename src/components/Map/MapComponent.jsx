@@ -320,218 +320,218 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                     }
 
 
+
+                    props["Sitio Prioritario"] = spName;
+
+                } else if (feature.layer.id.includes('ecosistemas-formaciones')) {
+                    title = "Ecosistema (Formación)";
+                } else if (feature.layer.id.includes('areas_protegidas')) {
+                    title = "Área Protegida";
+                } else if (feature.layer.id.includes('sitios_prioritarios')) {
+                    title = "Sitio Prioritario";
                 }
-                props["Sitio Prioritario"] = spName;
 
-            } else if (feature.layer.id.includes('ecosistemas-formaciones')) {
-                title = "Ecosistema (Formación)";
-            } else if (feature.layer.id.includes('areas_protegidas')) {
-                title = "Área Protegida";
-            } else if (feature.layer.id.includes('sitios_prioritarios')) {
-                title = "Sitio Prioritario";
-            }
+                // Build Table
+                let propertiesHtml = '<div style="max-height: 200px; overflow-y: auto; font-size: 11px;">';
+                propertiesHtml += '<table style="width: 100%; border-collapse: collapse; color: #333;">';
 
-            // Build Table
-            let propertiesHtml = '<div style="max-height: 200px; overflow-y: auto; font-size: 11px;">';
-            propertiesHtml += '<table style="width: 100%; border-collapse: collapse; color: #333;">';
+                // Sort keys so our important ones are top (optional, but nice)
+                const priorityKeys = ["Ecosistema", "Área Protegida", "Sitio Prioritario"];
+                const sortedKeys = Object.keys(props).sort((a, b) => {
+                    const idxA = priorityKeys.indexOf(a);
+                    const idxB = priorityKeys.indexOf(b);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return a.localeCompare(b);
+                });
 
-            // Sort keys so our important ones are top (optional, but nice)
-            const priorityKeys = ["Ecosistema", "Área Protegida", "Sitio Prioritario"];
-            const sortedKeys = Object.keys(props).sort((a, b) => {
-                const idxA = priorityKeys.indexOf(a);
-                const idxB = priorityKeys.indexOf(b);
-                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-                if (idxA !== -1) return -1;
-                if (idxB !== -1) return 1;
-                return a.localeCompare(b);
-            });
+                sortedKeys.forEach((key) => {
+                    let value = props[key];
+                    if (value === undefined || value === null) return;
 
-            sortedKeys.forEach((key) => {
-                let value = props[key];
-                if (value === undefined || value === null) return;
-
-                // Format Numbers
-                if (key === 'Has' || key === 'has' || typeof value === 'number') {
-                    const num = parseFloat(value);
-                    if (!isNaN(num) && isFinite(num)) {
-                        value = new Intl.NumberFormat('es-CL').format(num);
+                    // Format Numbers
+                    if (key === 'Has' || key === 'has' || typeof value === 'number') {
+                        const num = parseFloat(value);
+                        if (!isNaN(num) && isFinite(num)) {
+                            value = new Intl.NumberFormat('es-CL').format(num);
+                        }
                     }
-                }
 
-                // Render clickable link for URL_SIMBIO
-                let displayValue = value;
-                // Check for URL key specifically OR http prefix
-                if (key === 'URL_SIMBIO' || (typeof value === 'string' && value.startsWith('http'))) {
-                    let href = value;
-                    // Ensure protocol if it's the specific key but missing http
-                    if (key === 'URL_SIMBIO' && !value.startsWith('http')) {
-                        href = `https://${value}`;
+                    // Render clickable link for URL_SIMBIO
+                    let displayValue = value;
+                    // Check for URL key specifically OR http prefix
+                    if (key === 'URL_SIMBIO' || (typeof value === 'string' && value.startsWith('http'))) {
+                        let href = value;
+                        // Ensure protocol if it's the specific key but missing http
+                        if (key === 'URL_SIMBIO' && !value.startsWith('http')) {
+                            href = `https://${value}`;
+                        }
+                        displayValue = `<a href="${href}" target="_blank" style="color: #2563eb; text-decoration: underline;">Ver Ficha</a>`;
                     }
-                    displayValue = `<a href="${href}" target="_blank" style="color: #2563eb; text-decoration: underline;">Ver Ficha</a>`;
-                }
 
-                propertiesHtml += `
+                    propertiesHtml += `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 2px 4px; font-weight: bold; color: #555;">${key}</td>
                         <td style="padding: 2px 4px;">${displayValue}</td>
                     </tr>
                    `;
-            });
-            propertiesHtml += '</table></div>';
+                });
+                propertiesHtml += '</table></div>';
 
-            new maplibregl.Popup({ maxWidth: '300px' })
-                .setLngLat(e.lngLat)
-                .setHTML(`
+                new maplibregl.Popup({ maxWidth: '300px' })
+                    .setLngLat(e.lngLat)
+                    .setHTML(`
                         <div style="font-family: sans-serif; padding: 4px;">
                             <strong style="font-size: 1.1em; color: #1e293b; display:block; margin-bottom:4px;">${title}</strong>
                             ${propertiesHtml}
                         </div>
                     `)
-                .addTo(map.current);
-        }
+                    .addTo(map.current);
+            }
         });
 
-    // Hover Effect Handlers
-    const ecosystemLayers = ['ecosistemas-integrados-fill', 'ecosistemas-formaciones-fill'];
+        // Hover Effect Handlers
+        const ecosystemLayers = ['ecosistemas-integrados-fill', 'ecosistemas-formaciones-fill'];
 
-    map.current.on('mousemove', ecosystemLayers, (e) => {
-        if (e.features.length > 0) {
-            const feature = e.features[0];
-            const id = feature.id; // promotedId
-            const source = feature.source;
-            const sourceLayer = feature.sourceLayer;
+        map.current.on('mousemove', ecosystemLayers, (e) => {
+            if (e.features.length > 0) {
+                const feature = e.features[0];
+                const id = feature.id; // promotedId
+                const source = feature.source;
+                const sourceLayer = feature.sourceLayer;
 
-            // If hovering over a new feature
-            if (!hoveredFeature || hoveredFeature.id !== id || hoveredFeature.source !== source) {
-                // Turn off previous
-                if (hoveredFeature) {
-                    map.current.setFeatureState(
-                        { source: hoveredFeature.source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id },
-                        { hover: false }
-                    );
+                // If hovering over a new feature
+                if (!hoveredFeature || hoveredFeature.id !== id || hoveredFeature.source !== source) {
+                    // Turn off previous
+                    if (hoveredFeature) {
+                        map.current.setFeatureState(
+                            { source: hoveredFeature.source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id },
+                            { hover: false }
+                        );
+                    }
+
+                    // Turn on new
+                    if (id !== undefined) {
+                        setHoveredFeature({ id, source, sourceLayer });
+                        map.current.setFeatureState(
+                            { source, sourceLayer, id },
+                            { hover: true }
+                        );
+                    }
+                }
+                map.current.getCanvas().style.cursor = 'pointer';
+            }
+        });
+
+        map.current.on('mouseleave', ecosystemLayers, () => {
+            if (hoveredFeature) {
+                map.current.setFeatureState(
+                    { source: hoveredFeature.source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id },
+                    { hover: false }
+                );
+            }
+            setHoveredFeature(null);
+            map.current.getCanvas().style.cursor = '';
+        });
+
+    }, []);
+
+    // Effect: Visibility Updates
+    useEffect(() => {
+        if (!map.current) return;
+
+        // Toggle AP/SP
+        ['areas_protegidas', 'sitios_prioritarios'].forEach(layer => {
+            const visibility = activeLayers[layer] ? 'visible' : 'none';
+            if (map.current.getLayer(`${layer}-fill`)) {
+                map.current.setLayoutProperty(`${layer}-fill`, 'visibility', visibility);
+                map.current.setLayoutProperty(`${layer}-line`, 'visibility', visibility);
+            }
+        });
+
+        // Toggle Ecosystem Layers
+        const formVis = activeLayers['ecosistemas_formaciones'] ? 'visible' : 'none';
+        if (map.current.getLayer('ecosistemas-formaciones-fill')) {
+            map.current.setLayoutProperty('ecosistemas-formaciones-fill', 'visibility', formVis);
+            map.current.setLayoutProperty('ecosistemas-formaciones-line', 'visibility', formVis);
+        }
+
+        const intVis = activeLayers['ecosistemas_integrados'] ? 'visible' : 'none';
+        if (map.current.getLayer('ecosistemas-integrados-fill')) {
+            map.current.setLayoutProperty('ecosistemas-integrados-fill', 'visibility', intVis);
+            map.current.setLayoutProperty('ecosistemas-integrados-line', 'visibility', intVis);
+        }
+
+    }, [activeLayers]);
+
+    // Effect: Filtering & Zoom
+    useEffect(() => {
+        if (!map.current || !map.current.getLayer('ecosistemas-formaciones-fill')) return;
+
+        if (searchTerm && ecosystemStats) {
+            const eco = ecosystemStats.find(s => s.name === searchTerm);
+            if (eco) {
+                console.log("Filtering Map to Ecosystem:", eco.name, eco.id);
+                // 1. ZOOM to Bounds (New)
+                if (bounds[eco.id]) {
+                    map.current.fitBounds(bounds[eco.id], { padding: 50, maxZoom: 12 });
                 }
 
-                // Turn on new
-                if (id !== undefined) {
-                    setHoveredFeature({ id, source, sourceLayer });
-                    map.current.setFeatureState(
-                        { source, sourceLayer, id },
-                        { hover: true }
-                    );
-                }
-            }
-            map.current.getCanvas().style.cursor = 'pointer';
-        }
-    });
+                // 2. Filter Ecosystems Layer
+                const filter = ['==', 'CODIGO', eco.id];
 
-    map.current.on('mouseleave', ecosystemLayers, () => {
-        if (hoveredFeature) {
-            map.current.setFeatureState(
-                { source: hoveredFeature.source, sourceLayer: hoveredFeature.sourceLayer, id: hoveredFeature.id },
-                { hover: false }
-            );
-        }
-        setHoveredFeature(null);
-        map.current.getCanvas().style.cursor = '';
-    });
+                // Apply filter to BOTH ecosystem layers
+                map.current.setFilter('ecosistemas-formaciones-fill', filter);
+                map.current.setFilter('ecosistemas-formaciones-line', filter);
+                map.current.setFilter('ecosistemas-integrados-fill', filter);
+                map.current.setFilter('ecosistemas-integrados-line', filter);
 
-}, []);
+                // 3. Cross-filtering for AP/SP
+                if (relations[eco.id]) {
+                    const { aps, sps } = relations[eco.id];
 
-// Effect: Visibility Updates
-useEffect(() => {
-    if (!map.current) return;
+                    if (aps && aps.length > 0) {
+                        const apFilter = ['in', 'Codrnap', ...aps];
+                        map.current.setFilter('areas_protegidas-fill', apFilter);
+                        map.current.setFilter('areas_protegidas-line', apFilter);
+                    } else {
+                        map.current.setFilter('areas_protegidas-fill', ['in', 'Codrnap', 'NO_MATCH']);
+                        map.current.setFilter('areas_protegidas-line', ['in', 'Codrnap', 'NO_MATCH']);
+                    }
 
-    // Toggle AP/SP
-    ['areas_protegidas', 'sitios_prioritarios'].forEach(layer => {
-        const visibility = activeLayers[layer] ? 'visible' : 'none';
-        if (map.current.getLayer(`${layer}-fill`)) {
-            map.current.setLayoutProperty(`${layer}-fill`, 'visibility', visibility);
-            map.current.setLayoutProperty(`${layer}-line`, 'visibility', visibility);
-        }
-    });
-
-    // Toggle Ecosystem Layers
-    const formVis = activeLayers['ecosistemas_formaciones'] ? 'visible' : 'none';
-    if (map.current.getLayer('ecosistemas-formaciones-fill')) {
-        map.current.setLayoutProperty('ecosistemas-formaciones-fill', 'visibility', formVis);
-        map.current.setLayoutProperty('ecosistemas-formaciones-line', 'visibility', formVis);
-    }
-
-    const intVis = activeLayers['ecosistemas_integrados'] ? 'visible' : 'none';
-    if (map.current.getLayer('ecosistemas-integrados-fill')) {
-        map.current.setLayoutProperty('ecosistemas-integrados-fill', 'visibility', intVis);
-        map.current.setLayoutProperty('ecosistemas-integrados-line', 'visibility', intVis);
-    }
-
-}, [activeLayers]);
-
-// Effect: Filtering & Zoom
-useEffect(() => {
-    if (!map.current || !map.current.getLayer('ecosistemas-formaciones-fill')) return;
-
-    if (searchTerm && ecosystemStats) {
-        const eco = ecosystemStats.find(s => s.name === searchTerm);
-        if (eco) {
-            console.log("Filtering Map to Ecosystem:", eco.name, eco.id);
-            // 1. ZOOM to Bounds (New)
-            if (bounds[eco.id]) {
-                map.current.fitBounds(bounds[eco.id], { padding: 50, maxZoom: 12 });
-            }
-
-            // 2. Filter Ecosystems Layer
-            const filter = ['==', 'CODIGO', eco.id];
-
-            // Apply filter to BOTH ecosystem layers
-            map.current.setFilter('ecosistemas-formaciones-fill', filter);
-            map.current.setFilter('ecosistemas-formaciones-line', filter);
-            map.current.setFilter('ecosistemas-integrados-fill', filter);
-            map.current.setFilter('ecosistemas-integrados-line', filter);
-
-            // 3. Cross-filtering for AP/SP
-            if (relations[eco.id]) {
-                const { aps, sps } = relations[eco.id];
-
-                if (aps && aps.length > 0) {
-                    const apFilter = ['in', 'Codrnap', ...aps];
-                    map.current.setFilter('areas_protegidas-fill', apFilter);
-                    map.current.setFilter('areas_protegidas-line', apFilter);
+                    if (sps && sps.length > 0) {
+                        const spFilter = ['in', 'Name', ...sps];
+                        map.current.setFilter('sitios_prioritarios-fill', spFilter);
+                        map.current.setFilter('sitios_prioritarios-line', spFilter);
+                    } else {
+                        map.current.setFilter('sitios_prioritarios-fill', ['in', 'Name', 'NO_MATCH']);
+                        map.current.setFilter('sitios_prioritarios-line', ['in', 'Name', 'NO_MATCH']);
+                    }
                 } else {
+                    // No relations -> hide dependent layers
                     map.current.setFilter('areas_protegidas-fill', ['in', 'Codrnap', 'NO_MATCH']);
                     map.current.setFilter('areas_protegidas-line', ['in', 'Codrnap', 'NO_MATCH']);
-                }
-
-                if (sps && sps.length > 0) {
-                    const spFilter = ['in', 'Name', ...sps];
-                    map.current.setFilter('sitios_prioritarios-fill', spFilter);
-                    map.current.setFilter('sitios_prioritarios-line', spFilter);
-                } else {
                     map.current.setFilter('sitios_prioritarios-fill', ['in', 'Name', 'NO_MATCH']);
                     map.current.setFilter('sitios_prioritarios-line', ['in', 'Name', 'NO_MATCH']);
                 }
-            } else {
-                // No relations -> hide dependent layers
-                map.current.setFilter('areas_protegidas-fill', ['in', 'Codrnap', 'NO_MATCH']);
-                map.current.setFilter('areas_protegidas-line', ['in', 'Codrnap', 'NO_MATCH']);
-                map.current.setFilter('sitios_prioritarios-fill', ['in', 'Name', 'NO_MATCH']);
-                map.current.setFilter('sitios_prioritarios-line', ['in', 'Name', 'NO_MATCH']);
+
             }
-
+        } else {
+            // Clear all filters
+            console.log("Clearing Map Filter");
+            ['ecosistemas-formaciones', 'ecosistemas-integrados'].forEach(base => {
+                map.current.setFilter(`${base}-fill`, null);
+                map.current.setFilter(`${base}-line`, null);
+            });
+            map.current.setFilter('areas_protegidas-fill', null);
+            map.current.setFilter('areas_protegidas-line', null);
+            map.current.setFilter('sitios_prioritarios-fill', null);
+            map.current.setFilter('sitios_prioritarios-line', null);
         }
-    } else {
-        // Clear all filters
-        console.log("Clearing Map Filter");
-        ['ecosistemas-formaciones', 'ecosistemas-integrados'].forEach(base => {
-            map.current.setFilter(`${base}-fill`, null);
-            map.current.setFilter(`${base}-line`, null);
-        });
-        map.current.setFilter('areas_protegidas-fill', null);
-        map.current.setFilter('areas_protegidas-line', null);
-        map.current.setFilter('sitios_prioritarios-fill', null);
-        map.current.setFilter('sitios_prioritarios-line', null);
-    }
-}, [searchTerm, ecosystemStats, relations, bounds]);
+    }, [searchTerm, ecosystemStats, relations, bounds]);
 
-return <div ref={mapContainer} style={{ width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }} />;
+    return <div ref={mapContainer} style={{ width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }} />;
 };
 
 export default MapComponent;
