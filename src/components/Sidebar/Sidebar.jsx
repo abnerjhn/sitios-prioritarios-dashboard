@@ -515,10 +515,7 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
                     </div>
                 </div>
             )}
-            {/* Debug Version Indicator */}
-            <div className="absolute bottom-1 right-2 text-[10px] text-slate-600 opacity-50 pointer-events-none">
-                v1.0.5 (Debug)
-            </div>
+
         </div>
     );
 };
