@@ -406,7 +406,7 @@ const Sidebar = ({ activeLayers, onToggleLayer, onSearch, searchTerm, data, targ
             </div>
 
             <div className="p-4 border-t border-slate-800 text-center">
-                <span className="text-xs text-green-400 font-bold">v1.0.7 (AP Fix)</span>
+                <img src="/Logo.png" alt="Instituto Libertad" className="h-12 mx-auto opacity-80" />
             </div>
 
             {/* Formations Modal */}
