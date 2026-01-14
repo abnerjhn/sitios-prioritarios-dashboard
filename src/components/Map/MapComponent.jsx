@@ -249,10 +249,14 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                         // Helper to query with multiple source layers
                         let apFeatures = [];
                         const queryAP = (sourceLayer) => {
-                            // 1. Exact string match
+                            // 1. Exact string match (try various field names)
                             let res = map.current.querySourceFeatures('areas_protegidas', {
                                 sourceLayer: sourceLayer,
-                                filter: ['==', 'Codrnap', apCode]
+                                filter: ['any',
+                                    ['==', 'Codrnap', apCode],
+                                    ['==', 'codrnap', apCode],
+                                    ['==', 'CODRNAP', apCode]
+                                ]
                             });
                             if (res.length > 0) return res;
 
@@ -261,7 +265,13 @@ const MapComponent = ({ onEcosystemSelect, activeLayers, ecosystemStats, searchT
                             if (!isNaN(numeric)) {
                                 res = map.current.querySourceFeatures('areas_protegidas', {
                                     sourceLayer: sourceLayer,
-                                    filter: ['any', ['==', 'Codrnap', numeric], ['==', 'WDPA_PID', numeric], ['==', 'id', numeric]]
+                                    filter: ['any',
+                                        ['==', 'Codrnap', numeric],
+                                        ['==', 'codrnap', numeric],
+                                        ['==', 'WDPA_PID', numeric],
+                                        ['==', 'wdpa_pid', numeric],
+                                        ['==', 'id', numeric]
+                                    ]
                                 });
                             }
                             return res;
